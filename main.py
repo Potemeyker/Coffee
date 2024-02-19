@@ -1,7 +1,53 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QDialog, QVBoxLayout
 from PyQt5.uic import loadUi
+from PyQt5.QtWidgets import QFormLayout, QLabel, QLineEdit, QPushButton
 import sqlite3
+
+
+class AddEditCoffeeForm(QDialog):
+    def __init__(self, parent=None):
+        super(AddEditCoffeeForm, self).__init__(parent)
+        self.setWindowTitle('Add/Edit Coffee')
+
+        self.layout = QFormLayout()
+        self.name_input = QLineEdit()
+        self.roast_input = QLineEdit()
+        self.grind_input = QLineEdit()
+        self.taste_input = QLineEdit()
+        self.price_input = QLineEdit()
+        self.volume_input = QLineEdit()
+
+        self.layout.addRow(QLabel('Name:'), self.name_input)
+        self.layout.addRow(QLabel('Roast Level:'), self.roast_input)
+        self.layout.addRow(QLabel('Grind:'), self.grind_input)
+        self.layout.addRow(QLabel('Taste Description:'), self.taste_input)
+        self.layout.addRow(QLabel('Price:'), self.price_input)
+        self.layout.addRow(QLabel('Package Volume:'), self.volume_input)
+
+        self.save_button = QPushButton('Save')
+        self.save_button.clicked.connect(self.save_data)
+        self.layout.addRow(self.save_button)
+
+        self.setLayout(self.layout)
+
+    def save_data(self):
+        name = self.name_input.text()
+        roast_level = self.roast_input.text()
+        grind = self.grind_input.text()
+        taste_description = self.taste_input.text()
+        price = float(self.price_input.text())
+        volume = int(self.volume_input.text())
+
+        connection = sqlite3.connect('coffee.sqlite')
+        cursor = connection.cursor()
+
+        cursor.execute("INSERT INTO coffee (name, roast_level, grind, taste_description, price, package_volume) "
+                       "VALUES (?, ?, ?, ?, ?, ?)", (name, roast_level, grind, taste_description, price, volume))
+
+        connection.commit()
+        connection.close()
+        self.accept()
 
 
 class CoffeeApp(QMainWindow):
@@ -9,6 +55,8 @@ class CoffeeApp(QMainWindow):
         super(CoffeeApp, self).__init__()
         loadUi('main.ui', self)
         self.load_data()
+
+        self.addButton.clicked.connect(self.open_add_edit_form)
 
     def load_data(self):
         connection = sqlite3.connect('coffee.sqlite')
@@ -24,6 +72,11 @@ class CoffeeApp(QMainWindow):
             for j, col in enumerate(row):
                 item = QTableWidgetItem(str(col))
                 self.tableWidget.setItem(i, j, item)
+
+    def open_add_edit_form(self):
+        form = AddEditCoffeeForm(self)
+        if form.exec_() == QDialog.Accepted:
+            self.load_data()
 
 
 if __name__ == '__main__':
