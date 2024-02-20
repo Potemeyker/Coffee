@@ -8,28 +8,10 @@ import sqlite3
 class AddEditCoffeeForm(QDialog):
     def __init__(self, parent=None):
         super(AddEditCoffeeForm, self).__init__(parent)
+        loadUi('addEditCoffeeForm.ui', self)
         self.setWindowTitle('Add/Edit Coffee')
 
-        self.layout = QFormLayout()
-        self.name_input = QLineEdit()
-        self.roast_input = QLineEdit()
-        self.grind_input = QLineEdit()
-        self.taste_input = QLineEdit()
-        self.price_input = QLineEdit()
-        self.volume_input = QLineEdit()
-
-        self.layout.addRow(QLabel('Name:'), self.name_input)
-        self.layout.addRow(QLabel('Roast Level:'), self.roast_input)
-        self.layout.addRow(QLabel('Grind:'), self.grind_input)
-        self.layout.addRow(QLabel('Taste Description:'), self.taste_input)
-        self.layout.addRow(QLabel('Price:'), self.price_input)
-        self.layout.addRow(QLabel('Package Volume:'), self.volume_input)
-
-        self.save_button = QPushButton('Save')
         self.save_button.clicked.connect(self.save_data)
-        self.layout.addRow(self.save_button)
-
-        self.setLayout(self.layout)
 
     def save_data(self):
         name = self.name_input.text()
